@@ -1,0 +1,49 @@
+﻿@model Pharmacy.Models.Medicine
+@{
+    ViewData["Title"] = "Удаление товара";
+    bool hasSales = ViewBag.HasSales == true;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">Удаление товара</div>
+            <div class="card-body">
+                <p class="mb-3">Вы действительно хотите удалить этот товар?</p>
+
+                <dl class="row mb-3">
+                    <dt class="col-sm-4">Название</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+
+                    <dt class="col-sm-4">Категория</dt>
+                    <dd class="col-sm-8">@Model.Category?.Name</dd>
+
+                    <dt class="col-sm-4">Производитель</dt>
+                    <dd class="col-sm-8">@Model.Manufacturer?.Name</dd>
+
+                    <dt class="col-sm-4">Штрихкод</dt>
+                    <dd class="col-sm-8">@Model.Barcode</dd>
+                </dl>
+
+                @if (hasSales)
+                {
+                    <div class="alert alert-warning mb-3">
+                        Этот товар уже есть в истории продаж, поэтому его нельзя удалить.
+                        Вместо этого <strong>деактивируйте</strong> его: он пропадёт из каталога, а история сохранится.
+                    </div>
+
+                    <a asp-action="Manage" class="btn btn-outline-secondary">← Назад к списку</a>
+                }
+                else
+                {
+                    <div class="alert alert-danger mb-3">Это действие нельзя отменить.</div>
+
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-danger">Да, удалить</button>
+                        <a asp-action="Manage" class="btn btn-outline-secondary">Отмена</a>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

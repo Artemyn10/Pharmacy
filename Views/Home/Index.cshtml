@@ -1,0 +1,179 @@
+﻿@using Pharmacy.Models
+@{
+    ViewData["Title"] = "Главная";
+}
+
+@* ===== Верхний блок ===== *@
+<section class="hero text-center p-4 p-md-5 mb-5 shadow-sm">
+    <h1 class="display-5 fw-bold">Аптека</h1>
+    <p class="fs-4 mb-2">Система учёта лекарственных товаров и продаж</p>
+    <p class="lead mx-auto mb-4" style="max-width: 640px;">
+        Ведите каталог лекарств, следите за остатками на складе и оформляйте продажи
+        в одном месте. Просто, быстро и понятно.
+    </p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <p class="fs-5 mb-3">Добро пожаловать, <strong>@User.Identity.Name</strong>!</p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            @if (User.IsInRole(RoleNames.Administrator) || User.IsInRole(RoleNames.Pharmacist))
+            {
+                <a asp-controller="Sales" asp-action="Create" class="btn btn-light btn-lg">Новая продажа</a>
+            }
+            @if (User.IsInRole(RoleNames.Administrator))
+            {
+                <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-light btn-lg">Административная панель</a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a asp-controller="Account" asp-action="Login" class="btn btn-light btn-lg">Войти</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light btn-lg">Регистрация</a>
+        </div>
+    }
+</section>
+
+@* ===== Основные возможности ===== *@
+<section class="mb-5">
+    <h2 class="h3 text-center mb-4">Основные возможности</h2>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">💊</div>
+                    <h3 class="h5">Каталог лекарств</h3>
+                    <p class="text-muted mb-0">Название, категория, производитель, цена, срок годности и признак рецептурного отпуска.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">📦</div>
+                    <h3 class="h5">Учёт остатков</h3>
+                    <p class="text-muted mb-0">Видно, чего нет в наличии и что скоро закончится, чтобы вовремя пополнить склад.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">🧾</div>
+                    <h3 class="h5">Оформление продаж</h3>
+                    <p class="text-muted mb-0">Несколько товаров в одной продаже, автоматический подсчёт суммы и списание остатков.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">📋</div>
+                    <h3 class="h5">История продаж</h3>
+                    <p class="text-muted mb-0">Каждая продажа сохраняется вместе со своим составом, датой и суммой.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">🔍</div>
+                    <h3 class="h5">Поиск и фильтры</h3>
+                    <p class="text-muted mb-0">Поиск по названию и штрихкоду, фильтры по категории, производителю, наличию и рецепту.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card feature-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="feature-icon mb-3">🔐</div>
+                    <h3 class="h5">Роли и доступ</h3>
+                    <p class="text-muted mb-0">Администратор, фармацевт и клиент видят только те разделы, которые им положены.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ===== Роли в системе ===== *@
+<section class="mb-5">
+    <h2 class="h3 text-center mb-4">Кто что может</h2>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white">Администратор</div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        Полный доступ: управление пользователями и ролями, товарами, категориями,
+                        производителями, поставщиками, остатками и статистикой.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white">Фармацевт</div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        Просмотр и поиск товаров, проверка наличия, оформление продаж
+                        и просмотр собственных продаж.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white">Клиент</div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        Просмотр каталога, поиск и фильтрация, личный кабинет
+                        и история собственных покупок.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ===== Преимущества ===== *@
+<section class="mb-5">
+    <h2 class="h3 text-center mb-4">Преимущества системы</h2>
+
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <div class="fs-1">⚡</div>
+            <h3 class="h5">Простота</h3>
+            <p class="text-muted">Понятный интерфейс, с которым справится любой сотрудник без обучения.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="fs-1">🛡️</div>
+            <h3 class="h5">Безопасность</h3>
+            <p class="text-muted">Пароли хранятся в зашифрованном виде, а страницы защищены от посторонних.</p>
+        </div>
+        <div class="col-md-4">
+            <div class="fs-1">🔄</div>
+            <h3 class="h5">Актуальные остатки</h3>
+            <p class="text-muted">После каждой продажи количество товара на складе обновляется автоматически.</p>
+        </div>
+    </div>
+</section>
+
+@* ===== Призыв к действию для гостей ===== *@
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <section class="text-center bg-white rounded-3 shadow-sm p-4 p-md-5">
+        <h2 class="h3 mb-3">Готовы начать?</h2>
+        <p class="text-muted mb-4">Создайте аккаунт или войдите, если он у вас уже есть.</p>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg me-2">Регистрация</a>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-success btn-lg">Войти</a>
+    </section>
+}

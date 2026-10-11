@@ -1,0 +1,69 @@
+﻿@model List<Pharmacy.Models.Medicine>
+@using Pharmacy.Models
+@{
+    ViewData["Title"] = "Каталог";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Каталог лекарственных товаров</h1>
+    <span class="text-muted">Найдено товаров: @Model.Count</span>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">В каталоге пока нет товаров.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Производитель</th>
+                        <th class="text-end">Цена</th>
+                        <th>Наличие</th>
+                        <th>Срок годности</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        var expirationLabel = MedicineRules.GetExpirationLabel(m.ExpirationDate);
+
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@m.Id" class="fw-semibold text-decoration-none">@m.Name</a>
+                                @if (m.PrescriptionRequired)
+                                {
+                                    <span class="badge bg-secondary ms-1">Рецепт</span>
+                                }
+                            </td>
+                            <td>@m.Category?.Name</td>
+                            <td>@m.Manufacturer?.Name</td>
+                            <td class="text-end text-nowrap">@m.Price.ToString("N2") руб.</td>
+                            <td>
+                                <span class="badge @MedicineRules.GetStockBadgeClass(m.Quantity)">
+                                    @MedicineRules.GetStockLabel(m.Quantity)
+                                </span>
+                            </td>
+                            <td class="text-nowrap">
+                                @m.ExpirationDate.ToString("dd.MM.yyyy")
+                                @if (expirationLabel != "")
+                                {
+                                    <span class="badge @MedicineRules.GetExpirationBadgeClass(m.ExpirationDate) ms-1">@expirationLabel</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@m.Id" class="btn btn-outline-success btn-sm">Подробнее</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

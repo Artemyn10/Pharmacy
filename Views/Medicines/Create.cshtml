@@ -1,0 +1,27 @@
+﻿@model Pharmacy.Models.Medicine
+@{
+    ViewData["Title"] = "Добавление товара";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 mb-4">Добавление товара</h1>
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <partial name="_MedicineForm" model="Model" />
+
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <a asp-action="Manage" class="btn btn-outline-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

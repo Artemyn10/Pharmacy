@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Административная панель";
+}
+
+<h1 class="h3 mb-3">Административная панель</h1>
+
+<div class="alert alert-info">
+    Раздел в разработке. Остальные пункты панели появятся на следующих этапах.
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon mb-3">💊</div>
+                <h2 class="h5">Товары</h2>
+                <p class="text-muted">Добавление, изменение, деактивация и удаление лекарственных товаров.</p>
+                <a asp-controller="Medicines" asp-action="Manage" class="btn btn-success btn-sm">Открыть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon mb-3">👥</div>
+                <h2 class="h5">Пользователи</h2>
+                <p class="text-muted">Список пользователей и назначение ролей (Этап 18).</p>
+                <a asp-action="Users" class="btn btn-outline-secondary btn-sm">Открыть</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+﻿@model Pharmacy.Models.ViewModels.ProfileViewModel
+@using Pharmacy.Models
+@{
+    ViewData["Title"] = "Личный кабинет";
+}
+
+<h1 class="h3 mb-4">Личный кабинет</h1>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-success text-white">Мои данные</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.FullName)</dt>
+                    <dd class="col-sm-8">@Model.FullName</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.UserName)</dt>
+                    <dd class="col-sm-8">@Model.UserName</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Email)</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Role)</dt>
+                    <dd class="col-sm-8"><span class="badge bg-success">@Model.Role</span></dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white">
+                <a asp-action="Edit" class="btn btn-success btn-sm">Изменить данные</a>
+                <a asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">Сменить пароль</a>
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole(RoleNames.Client))
+    {
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">Мои покупки</div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-0">
+                        Здесь будет история ваших покупок. Мы добавим её на Этапе 17.
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

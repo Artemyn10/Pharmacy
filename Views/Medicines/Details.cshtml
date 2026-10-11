@@ -1,0 +1,83 @@
+﻿@model Pharmacy.Models.Medicine
+@using Pharmacy.Models
+@{
+    ViewData["Title"] = Model.Name;
+    var expirationLabel = MedicineRules.GetExpirationLabel(Model.ExpirationDate);
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Каталог</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+@* Эту плашку увидит только администратор: клиентам неактивные товары недоступны *@
+@if (!Model.IsActive)
+{
+    <div class="alert alert-warning">Товар деактивирован и не отображается в каталоге.</div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white d-flex flex-wrap justify-content-between align-items-center">
+        <h1 class="h4 mb-0">@Model.Name</h1>
+        <span class="fs-5">@Model.Price.ToString("N2") руб.</span>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <h2 class="h6 text-muted text-uppercase">Описание</h2>
+                <p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Описание отсутствует." : Model.Description)</p>
+            </div>
+
+            <div class="col-lg-5">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Категория</dt>
+                    <dd class="col-sm-7">@Model.Category?.Name</dd>
+
+                    <dt class="col-sm-5">Производитель</dt>
+                    <dd class="col-sm-7">@Model.Manufacturer?.Name (@Model.Manufacturer?.Country)</dd>
+
+                    <dt class="col-sm-5">Наличие</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge @MedicineRules.GetStockBadgeClass(Model.Quantity)">
+                            @MedicineRules.GetStockLabel(Model.Quantity)
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-5">Количество</dt>
+                    <dd class="col-sm-7">@Model.Quantity шт.</dd>
+
+                    <dt class="col-sm-5">Срок годности</dt>
+                    <dd class="col-sm-7">
+                        @Model.ExpirationDate.ToString("dd.MM.yyyy")
+                        @if (expirationLabel != "")
+                        {
+                            <span class="badge @MedicineRules.GetExpirationBadgeClass(Model.ExpirationDate) ms-1">@expirationLabel</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-5">Штрихкод</dt>
+                    <dd class="col-sm-7">@Model.Barcode</dd>
+
+                    <dt class="col-sm-5">Рецепт</dt>
+                    <dd class="col-sm-7">
+                        @if (Model.PrescriptionRequired)
+                        {
+                            <span class="badge bg-secondary">Требуется рецепт</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-dark border">Без рецепта</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-white">
+        <a asp-action="Index" class="btn btn-outline-secondary">← Назад к каталогу</a>
+    </div>
+</div>
