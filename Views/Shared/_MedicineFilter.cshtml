@@ -1,0 +1,73 @@
+﻿@model Pharmacy.Models.ViewModels.MedicineListViewModel
+@{
+    // На странице «Остатки» страница-родитель ставит этот флаг
+    var stockMode = ViewData["StockMode"] as bool? == true;
+    var f = Model.Filter;
+}
+
+@* method="get": значения попадут в адрес страницы. Форма отправляется в Index текущего контроллера *@
+<form method="get" asp-action="Index" class="card card-body shadow-sm mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label small mb-1" for="Search">Поиск</label>
+            <input type="search" id="Search" name="Search" value="@f.Search"
+                   class="form-control" placeholder="Название или штрихкод" />
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <label class="form-label small mb-1" for="CategoryId">Категория</label>
+            <select id="CategoryId" name="CategoryId" asp-items="Model.Categories" class="form-select">
+                <option value="">Все категории</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <label class="form-label small mb-1" for="ManufacturerId">Производитель</label>
+            <select id="ManufacturerId" name="ManufacturerId" asp-items="Model.Manufacturers" class="form-select">
+                <option value="">Все производители</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <label class="form-label small mb-1" for="Availability">Наличие</label>
+            <select id="Availability" name="Availability" class="form-select">
+                <option value="all" selected="@(f.Availability == "all")">Все</option>
+                <option value="in" selected="@(f.Availability == "in")">В наличии</option>
+                @if (stockMode)
+                {
+                    <option value="low" selected="@(f.Availability == "low")">Заканчивается</option>
+                }
+                <option value="out" selected="@(f.Availability == "out")">Нет в наличии</option>
+            </select>
+        </div>
+
+        @if (stockMode)
+        {
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label small mb-1" for="Expiration">Срок годности</label>
+                <select id="Expiration" name="Expiration" class="form-select">
+                    <option value="all" selected="@(f.Expiration == "all")">Любой</option>
+                    <option value="valid" selected="@(f.Expiration == "valid")">В порядке</option>
+                    <option value="soon" selected="@(f.Expiration == "soon")">Скоро истекает</option>
+                    <option value="expired" selected="@(f.Expiration == "expired")">Истёк</option>
+                </select>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-6 col-lg-4">
+                <label class="form-label small mb-1" for="Prescription">Рецепт</label>
+                <select id="Prescription" name="Prescription" class="form-select">
+                    <option value="all" selected="@(f.Prescription == "all")">Все</option>
+                    <option value="without" selected="@(f.Prescription == "without")">Без рецепта</option>
+                    <option value="with" selected="@(f.Prescription == "with")">По рецепту</option>
+                </select>
+            </div>
+        }
+
+        <div class="col-lg-4 d-flex gap-2">
+            <button type="submit" class="btn btn-success flex-grow-1">Найти</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Сбросить</a>
+        </div>
+    </div>
+</form>

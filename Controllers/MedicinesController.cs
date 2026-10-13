@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Pharmacy.Data;
 using Pharmacy.Models;
+using Pharmacy.Models.ViewModels;
+using Pharmacy.Services;
 
 namespace Pharmacy.Controllers;
 
@@ -13,29 +15,25 @@ namespace Pharmacy.Controllers;
 public class MedicinesController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly MedicineListService _medicineList;
 
-    public MedicinesController(ApplicationDbContext context)
+    public MedicinesController(ApplicationDbContext context, MedicineListService medicineList)
     {
         _context = context;
+        _medicineList = medicineList;
     }
 
     // =====================================================
     //  ПУБЛИЧНАЯ ЧАСТЬ: каталог (доступен всем)
     // =====================================================
-
     // ---------- Каталог: /Medicines ----------
+    // Параметры поиска и фильтров приходят из адреса страницы
     [AllowAnonymous]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery] MedicineFilter filter)
     {
-        var medicines = await _context.Medicines
-            .AsNoTracking()
-            .Include(m => m.Category)
-            .Include(m => m.Manufacturer)
-            .Where(m => m.IsActive)
-            .OrderBy(m => m.Name)
-            .ToListAsync();
-
-        return View(medicines);
+        // В каталоге показываем только активные товары
+        var model = await _medicineList.GetListAsync(filter, onlyActive: true);
+        return View(model);
     }
 
     // ---------- Подробнее: /Medicines/Details/5 ----------

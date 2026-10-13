@@ -1,0 +1,112 @@
+﻿@model Pharmacy.Models.ViewModels.MedicineListViewModel
+@using Pharmacy.Models
+@{
+    ViewData["Title"] = "Остатки";
+
+    // Флаг для общей формы фильтра: показать пункт «Заканчивается» и фильтр по сроку годности
+    ViewData["StockMode"] = true;
+
+    // Сводка по текущей выборке
+    var total = Model.Medicines.Count;
+    var outCount = Model.Medicines.Count(m => m.Quantity <= 0);
+    var lowCount = Model.Medicines.Count(m => m.Quantity > 0 && m.Quantity < MedicineRules.LowStockThreshold);
+}
+
+<h1 class="h3 mb-3">Остатки на складе</h1>
+
+<div class="row g-3 mb-3">
+    <div class="col-sm-4">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <div class="fs-4 fw-bold">@total</div>
+                <div class="text-muted small">Позиций в выборке</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <div class="fs-4 fw-bold text-warning">@lowCount</div>
+                <div class="text-muted small">Заканчивается</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="card border-0 shadow-sm text-center">
+            <div class="card-body py-2">
+                <div class="fs-4 fw-bold text-danger">@outCount</div>
+                <div class="text-muted small">Нет в наличии</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_MedicineFilter" model="Model" />
+
+@if (!Model.Medicines.Any())
+{
+    <div class="alert alert-info">
+        По вашему запросу ничего не найдено. Измените условия поиска или
+        <a asp-action="Index">сбросьте фильтры</a>.
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Лекарство</th>
+                        <th>Категория</th>
+                        <th>Производитель</th>
+                        <th class="text-end">Цена</th>
+                        <th class="text-center">Количество</th>
+                        <th>Статус</th>
+                        <th>Срок годности</th>
+                        @if (User.IsInRole(RoleNames.Administrator))
+                        {
+                            <th></th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model.Medicines)
+                    {
+                        var expirationLabel = MedicineRules.GetExpirationLabel(m.ExpirationDate);
+
+                        <tr>
+                            <td>
+                                <a asp-controller="Medicines" asp-action="Details" asp-route-id="@m.Id"
+                                   class="fw-semibold text-decoration-none">@m.Name</a>
+                            </td>
+                            <td>@m.Category?.Name</td>
+                            <td>@m.Manufacturer?.Name</td>
+                            <td class="text-end text-nowrap">@m.Price.ToString("N2") руб.</td>
+                            <td class="text-center fw-bold">@m.Quantity</td>
+                            <td>
+                                <span class="badge @MedicineRules.GetStockBadgeClass(m.Quantity)">
+                                    @MedicineRules.GetStockLabel(m.Quantity)
+                                </span>
+                            </td>
+                            <td class="text-nowrap">
+                                @m.ExpirationDate.ToString("dd.MM.yyyy")
+                                @if (expirationLabel != "")
+                                {
+                                    <span class="badge @MedicineRules.GetExpirationBadgeClass(m.ExpirationDate) ms-1">@expirationLabel</span>
+                                }
+                            </td>
+                            @if (User.IsInRole(RoleNames.Administrator))
+                            {
+                                <td class="text-end">
+                                    <a asp-controller="Medicines" asp-action="Edit" asp-route-id="@m.Id"
+                                       class="btn btn-outline-primary btn-sm">Изменить</a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

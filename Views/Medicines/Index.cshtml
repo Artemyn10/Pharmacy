@@ -1,4 +1,4 @@
-﻿@model List<Pharmacy.Models.Medicine>
+﻿@model Pharmacy.Models.ViewModels.MedicineListViewModel
 @using Pharmacy.Models
 @{
     ViewData["Title"] = "Каталог";
@@ -6,12 +6,17 @@
 
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Каталог лекарственных товаров</h1>
-    <span class="text-muted">Найдено товаров: @Model.Count</span>
+    <span class="text-muted">Найдено товаров: @Model.Medicines.Count</span>
 </div>
 
-@if (!Model.Any())
+<partial name="_MedicineFilter" model="Model" />
+
+@if (!Model.Medicines.Any())
 {
-    <div class="alert alert-info">В каталоге пока нет товаров.</div>
+    <div class="alert alert-info">
+        По вашему запросу ничего не найдено. Измените условия поиска или
+        <a asp-action="Index">сбросьте фильтры</a>.
+    </div>
 }
 else
 {
@@ -30,7 +35,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var m in Model)
+                    @foreach (var m in Model.Medicines)
                     {
                         var expirationLabel = MedicineRules.GetExpirationLabel(m.ExpirationDate);
 

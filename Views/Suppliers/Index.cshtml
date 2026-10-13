@@ -1,0 +1,56 @@
+﻿@model List<Pharmacy.Models.Supplier>
+@{
+    ViewData["Title"] = "Поставщики";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0">Поставщики</h1>
+    <div>
+        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary">← В панель</a>
+        <a asp-action="Create" class="btn btn-success">+ Добавить поставщика</a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Поставщиков пока нет. Нажмите «Добавить поставщика».</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Название</th>
+                        <th>Телефон</th>
+                        <th>Email</th>
+                        <th>Адрес</th>
+                        <th class="text-center">Товаров</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@s.Name</td>
+                            <td class="text-nowrap">@s.Phone</td>
+                            <td>@s.Email</td>
+                            <td>@s.Address</td>
+                            <td class="text-center"><span class="badge bg-secondary">@s.Medicines.Count</span></td>
+                            <td class="text-end text-nowrap">
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-outline-primary btn-sm">Изменить</a>
+
+                                <form asp-action="Delete" asp-route-id="@s.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Удалить этого поставщика?');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

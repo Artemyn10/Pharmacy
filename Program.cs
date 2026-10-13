@@ -36,7 +36,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 });
-
+builder.Services.AddScoped<MedicineListService>();
 builder.Services.AddControllersWithViews(options =>
 {
     // Наш «переводчик» для чисел decimal (понимает и точку, и запятую)

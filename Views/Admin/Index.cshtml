@@ -5,7 +5,7 @@
 <h1 class="h3 mb-3">Административная панель</h1>
 
 <div class="alert alert-info">
-    Раздел в разработке. Остальные пункты панели появятся на следующих этапах.
+    Раздел в разработке. Боковое меню и остальные пункты панели появятся на Этапе 18.
 </div>
 
 <div class="row g-3">
@@ -16,6 +16,39 @@
                 <h2 class="h5">Товары</h2>
                 <p class="text-muted">Добавление, изменение, деактивация и удаление лекарственных товаров.</p>
                 <a asp-controller="Medicines" asp-action="Manage" class="btn btn-success btn-sm">Открыть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon mb-3">🗂️</div>
+                <h2 class="h5">Категории</h2>
+                <p class="text-muted">Справочник категорий лекарственных товаров.</p>
+                <a asp-controller="Categories" asp-action="Index" class="btn btn-success btn-sm">Открыть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon mb-3">🏭</div>
+                <h2 class="h5">Производители</h2>
+                <p class="text-muted">Справочник производителей и стран.</p>
+                <a asp-controller="Manufacturers" asp-action="Index" class="btn btn-success btn-sm">Открыть</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card feature-card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="feature-icon mb-3">🚚</div>
+                <h2 class="h5">Поставщики</h2>
+                <p class="text-muted">Справочник поставщиков с контактными данными.</p>
+                <a asp-controller="Suppliers" asp-action="Index" class="btn btn-success btn-sm">Открыть</a>
             </div>
         </div>
     </div>
