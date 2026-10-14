@@ -251,6 +251,76 @@ namespace Pharmacy.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Pharmacy.Models.CustomerOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomerOrders");
+                });
+
+            modelBuilder.Entity("Pharmacy.Models.CustomerOrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerOrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MedicineId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MedicineName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerOrderId");
+
+                    b.HasIndex("MedicineId");
+
+                    b.ToTable("CustomerOrderItems");
+                });
+
             modelBuilder.Entity("Pharmacy.Models.Manufacturer", b =>
                 {
                     b.Property<int>("Id")
@@ -485,6 +555,36 @@ namespace Pharmacy.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Pharmacy.Models.CustomerOrder", b =>
+                {
+                    b.HasOne("Pharmacy.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Pharmacy.Models.CustomerOrderItem", b =>
+                {
+                    b.HasOne("Pharmacy.Models.CustomerOrder", "CustomerOrder")
+                        .WithMany("Items")
+                        .HasForeignKey("CustomerOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Pharmacy.Models.Medicine", "Medicine")
+                        .WithMany()
+                        .HasForeignKey("MedicineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CustomerOrder");
+
+                    b.Navigation("Medicine");
+                });
+
             modelBuilder.Entity("Pharmacy.Models.Medicine", b =>
                 {
                     b.HasOne("Pharmacy.Models.Category", "Category")
@@ -550,6 +650,11 @@ namespace Pharmacy.Migrations
             modelBuilder.Entity("Pharmacy.Models.Category", b =>
                 {
                     b.Navigation("Medicines");
+                });
+
+            modelBuilder.Entity("Pharmacy.Models.CustomerOrder", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Pharmacy.Models.Manufacturer", b =>

@@ -1,0 +1,57 @@
+﻿@model List<Pharmacy.Models.ViewModels.SalesListItemViewModel>
+
+@{
+    ViewData["Title"] = "Продажи";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Продажи</h1>
+    <a asp-action="Create" class="btn btn-success">+ Новая продажа</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">Продаж пока нет.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle bg-white">
+            <thead>
+                <tr>
+                    <th>Номер</th>
+                    <th>Дата</th>
+                    <th>Пользователь</th>
+                    <th class="text-end">Сумма</th>
+                    <th>Статус</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sale in Model)
+                {
+                    <tr>
+                        <td>#@sale.Id</td>
+                        <td>@sale.SaleDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            @sale.UserFullName
+                            @if (!string.IsNullOrWhiteSpace(sale.UserName))
+                            {
+                                <div class="small text-muted">@sale.UserName</div>
+                            }
+                        </td>
+                        <td class="text-end">@sale.TotalAmount.ToString("N2") руб.</td>
+                        <td>@sale.Status</td>
+                        <td class="text-end">
+                            <a asp-action="Details"
+                               asp-route-id="@sale.Id"
+                               class="btn btn-sm btn-outline-success">
+                                Состав
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

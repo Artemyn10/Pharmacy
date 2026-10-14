@@ -1,0 +1,56 @@
+﻿@model Pharmacy.Models.ViewModels.AdminUserEditViewModel
+
+@{
+    ViewData["Title"] = "Изменение пользователя";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h4 mb-4">Изменение пользователя</h1>
+
+                <form asp-action="EditUser" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input asp-for="Id" type="hidden" />
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label"></label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="@Pharmacy.Models.RoleNames.Client">Клиент</option>
+                            <option value="@Pharmacy.Models.RoleNames.Pharmacist">Фармацевт</option>
+                            <option value="@Pharmacy.Models.RoleNames.Administrator">Администратор</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label"></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <a asp-action="UserDetails"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

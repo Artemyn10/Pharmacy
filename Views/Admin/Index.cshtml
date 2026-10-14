@@ -1,12 +1,81 @@
-﻿@{
+﻿@model Pharmacy.Models.ViewModels.AdminDashboardViewModel
+
+@{
     ViewData["Title"] = "Административная панель";
 }
 
-<h1 class="h3 mb-3">Административная панель</h1>
+<h1 class="h3 mb-4">Dashboard</h1>
 
-<div class="alert alert-info">
-    Раздел в разработке. Боковое меню и остальные пункты панели появятся на Этапе 18.
+<div class="row g-3 mb-5">
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Активных товаров</div>
+                <div class="display-6 fw-semibold">@Model.MedicineCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Категорий</div>
+                <div class="display-6 fw-semibold">@Model.CategoryCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Пользователей</div>
+                <div class="display-6 fw-semibold">@Model.UserCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Всего продаж</div>
+                <div class="display-6 fw-semibold">@Model.SaleCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Продаж сегодня</div>
+                <div class="display-6 fw-semibold">@Model.SalesTodayCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Сумма всех продаж</div>
+                <div class="fs-3 fw-semibold">@Model.TotalSalesAmount.ToString("N2") руб.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="text-muted">Заканчиваются на складе</div>
+                <div class="display-6 fw-semibold">
+                    @Model.LowStockCount
+                    <span class="fs-6 text-muted">тов.</span>
+                </div>
+                <div class="small text-muted">Активные товары с остатком от 1 до 9</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<h2 class="h3 mb-3">Разделы управления</h2>
 
 <div class="row g-3">
     <div class="col-md-6 col-lg-4">
@@ -58,8 +127,8 @@
             <div class="card-body">
                 <div class="feature-icon mb-3">👥</div>
                 <h2 class="h5">Пользователи</h2>
-                <p class="text-muted">Список пользователей и назначение ролей (Этап 18).</p>
-                <a asp-action="Users" class="btn btn-outline-secondary btn-sm">Открыть</a>
+                <p class="text-muted">Просмотр пользователей, изменение данных, назначение ролей и деактивация.</p>
+                <a asp-controller="Admin" asp-action="Users" class="btn btn-success btn-sm">Открыть</a>
             </div>
         </div>
     </div>

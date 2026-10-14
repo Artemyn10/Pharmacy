@@ -23,28 +23,55 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
-
-                        @* Каталог доступен всем *@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Medicines" asp-action="Index">Каталог</a>
                         </li>
 
-                        @* Администратор и фармацевт *@
                         @if (User.IsInRole(RoleNames.Administrator) || User.IsInRole(RoleNames.Pharmacist))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Stock" asp-action="Index">Остатки</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Sales" asp-action="Create">Новая продажа</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   id="managementMenu"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    Управление
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="managementMenu">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Stock" asp-action="Index">Остатки</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Sales" asp-action="Create">Новая продажа</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Sales" asp-action="Index">Продажи</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Orders" asp-action="Index">Заказы клиентов</a>
+                                    </li>
+
+                                    @if (User.IsInRole(RoleNames.Administrator))
+                                    {
+                                        <li><hr class="dropdown-divider" /></li>
+                                        <li>
+                                            <a class="dropdown-item"
+                                               asp-controller="Admin"
+                                               asp-action="Index">Административная панель</a>
+                                        </li>
+                                    }
+                                </ul>
                             </li>
                         }
 
-                        @* Только администратор *@
-                        @if (User.IsInRole(RoleNames.Administrator))
+                        @if (User.IsInRole(RoleNames.Client))
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Admin" asp-action="Index">Административная панель</a>
+                                <a class="nav-link" asp-controller="Orders" asp-action="Create">Создать заказ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Orders" asp-action="Index">Мои заказы</a>
                             </li>
                         }
                     </ul>
@@ -74,7 +101,7 @@
     </main>
 
     <footer class="text-center text-muted border-top bg-white py-3 mt-auto">
-        &copy; @DateTime.Now.Year Аптека — учебный проект
+        &copy; @DateTime.Now.Year Аптека — индивидуальный проект
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

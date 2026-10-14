@@ -36,11 +36,14 @@
     {
         <div class="col-lg-6">
             <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white">Мои покупки</div>
+                <div class="card-header bg-success text-white">Мои заказы</div>
                 <div class="card-body">
-                    <div class="alert alert-info mb-0">
-                        Здесь будет история ваших покупок. Мы добавим её на Этапе 17.
-                    </div>
+                    <a asp-controller="Orders" asp-action="Create" class="btn btn-success">
+                        Создать заказ
+                    </a>
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-success">
+                        История заказов
+                    </a>
                 </div>
             </div>
         </div>

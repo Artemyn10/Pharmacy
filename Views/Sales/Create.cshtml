@@ -1,10 +1,162 @@
-﻿@{
+﻿@using System.Globalization
+@model Pharmacy.Models.ViewModels.CreateSaleViewModel
+
+@{
     ViewData["Title"] = "Новая продажа";
 }
 
-<h1 class="h3 mb-3">Новая продажа</h1>
+<h1 class="h3 mb-4">Новая продажа</h1>
 
-<div class="alert alert-info">
-    Заглушка. Доступна администратору и фармацевту.
-    Оформление продажи сделаем на Этапе 15.
-</div>
+@if (Model.AvailableMedicines.Count == 0)
+{
+    <div class="alert alert-info">
+        Сейчас нет доступных для продажи товаров.
+    </div>
+}
+else
+{
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div id="sale-items">
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                <div class="row g-2 align-items-end mb-3 sale-line">
+                    <div class="col-md-7">
+                        <label asp-for="Items[i].MedicineId" class="form-label">Товар</label>
+                        <select asp-for="Items[i].MedicineId" class="form-select medicine-select">
+                            <option value="">Выберите товар</option>
+                            @foreach (var medicine in Model.AvailableMedicines)
+                            {
+                                <option value="@medicine.Id"
+                                        data-price="@medicine.Price.ToString(CultureInfo.InvariantCulture)"
+                                        data-stock="@medicine.Stock">
+                                    @medicine.Name — @medicine.Price.ToString("N2") руб. (остаток: @medicine.Stock)
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="Items[i].MedicineId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label asp-for="Items[i].Quantity" class="form-label"></label>
+                        <input asp-for="Items[i].Quantity"
+                               type="number"
+                               min="1"
+                               class="form-control quantity-input" />
+                        <span asp-validation-for="Items[i].Quantity" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="form-label">Сумма</div>
+                        <div class="form-control-plaintext line-total">0,00 руб.</div>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-outline-danger remove-line" aria-label="Убрать товар">
+                            ×
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button type="button" id="add-line" class="btn btn-outline-success mb-4">
+            + Добавить товар
+        </button>
+
+        <div class="border-top pt-3 mb-3">
+            <strong>Итого: <span id="grand-total">0,00 руб.</span></strong>
+        </div>
+
+        <button type="submit" class="btn btn-success">Подтвердить продажу</button>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+    </form>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            const container = document.getElementById("sale-items");
+            if (!container) return;
+
+            const money = new Intl.NumberFormat("ru-RU", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            function updateTotals() {
+                let total = 0;
+
+                container.querySelectorAll(".sale-line").forEach(line => {
+                    const select = line.querySelector(".medicine-select");
+                    const quantityInput = line.querySelector(".quantity-input");
+                    const option = select.selectedOptions[0];
+                    const price = Number(option?.dataset.price);
+                    const quantity = Number(quantityInput.value);
+                    const lineTotal = Number.isFinite(price) && quantity > 0
+                        ? price * quantity
+                        : 0;
+
+                    line.querySelector(".line-total").textContent =
+                        money.format(lineTotal) + " руб.";
+                    total += lineTotal;
+                });
+
+                document.getElementById("grand-total").textContent =
+                    money.format(total) + " руб.";
+            }
+
+            function reindexLines() {
+                container.querySelectorAll(".sale-line").forEach((line, index) => {
+                    line.querySelectorAll("[name]").forEach(element => {
+                        element.name = element.name.replace(/Items\[\d+\]/, `Items[${index}]`);
+                    });
+
+                    line.querySelectorAll("[id]").forEach(element => {
+                        element.id = element.id.replace(/Items_\d+__/, `Items_${index}__`);
+                    });
+
+                    line.querySelectorAll("label[for]").forEach(label => {
+                        label.htmlFor = label.htmlFor.replace(/Items_\d+__/, `Items_${index}__`);
+                    });
+
+                    line.querySelectorAll("[data-valmsg-for]").forEach(element => {
+                        element.dataset.valmsgFor =
+                            element.dataset.valmsgFor.replace(/Items\[\d+\]/, `Items[${index}]`);
+                    });
+                });
+            }
+
+            document.getElementById("add-line").addEventListener("click", () => {
+                const newLine = container.querySelector(".sale-line").cloneNode(true);
+                newLine.querySelector(".medicine-select").value = "";
+                newLine.querySelector(".quantity-input").value = "1";
+                container.appendChild(newLine);
+                reindexLines();
+                updateTotals();
+            });
+
+            container.addEventListener("input", updateTotals);
+            container.addEventListener("change", updateTotals);
+
+            container.addEventListener("click", event => {
+                const button = event.target.closest(".remove-line");
+                if (!button) return;
+
+                const line = button.closest(".sale-line");
+                if (container.querySelectorAll(".sale-line").length === 1) {
+                    line.querySelector(".medicine-select").value = "";
+                    line.querySelector(".quantity-input").value = "1";
+                } else {
+                    line.remove();
+                }
+
+                reindexLines();
+                updateTotals();
+            });
+
+            updateTotals();
+        })();
+    </script>
+}

@@ -52,3 +52,20 @@ html {
 .table > :not(caption) > * > * {
     vertical-align: middle;
 }
+.navbar-brand {
+    white-space: nowrap;
+}
+
+.navbar-user-name {
+    display: inline-block;
+    max-width: 250px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+}
+
+@media (min-width: 992px) {
+    .navbar-nav .nav-link {
+        white-space: nowrap;
+    }
+}

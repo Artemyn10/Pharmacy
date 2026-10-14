@@ -20,6 +20,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Medicine> Medicines => Set<Medicine>();
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<SaleItem> SaleItems => Set<SaleItem>();
+    public DbSet<CustomerOrder> CustomerOrders => Set<CustomerOrder>();
+    public DbSet<CustomerOrderItem> CustomerOrderItems => Set<CustomerOrderItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -82,6 +84,28 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(i => i.Medicine)
                   .WithMany(m => m.SaleItems)
                   .HasForeignKey(i => i.MedicineId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+        // ---------- CustomerOrder ----------
+        builder.Entity<CustomerOrder>(entity =>
+        {
+            entity.HasOne(order => order.User)
+                  .WithMany()
+                  .HasForeignKey(order => order.UserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ---------- CustomerOrderItem ----------
+        builder.Entity<CustomerOrderItem>(entity =>
+        {
+            entity.HasOne(item => item.CustomerOrder)
+                  .WithMany(order => order.Items)
+                  .HasForeignKey(item => item.CustomerOrderId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(item => item.Medicine)
+                  .WithMany()
+                  .HasForeignKey(item => item.MedicineId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
     }
