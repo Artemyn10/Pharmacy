@@ -41,14 +41,18 @@ public class AdminController : Controller
 
             UserCount = await _userManager.Users.CountAsync(),
 
-            SaleCount = await _context.Sales.CountAsync(),
+            SaleCount = await _context.Sales
+            .CountAsync(sale => sale.Status == SaleStatuses.Completed),
 
             SalesTodayCount = await _context.Sales.CountAsync(sale =>
-                sale.SaleDate >= todayUtc && sale.SaleDate < tomorrowUtc),
+                sale.Status == SaleStatuses.Completed &&
+                sale.SaleDate >= todayUtc &&
+                sale.SaleDate < tomorrowUtc),
 
             TotalSalesAmount = await _context.Sales
-                .Select(sale => sale.TotalAmount)
-                .SumAsync(),
+            .Where(sale => sale.Status == SaleStatuses.Completed)
+            .Select(sale => sale.TotalAmount)
+            .SumAsync(),
 
             LowStockCount = await _context.Medicines.CountAsync(medicine =>
                 medicine.IsActive &&

@@ -69,3 +69,30 @@ html {
         white-space: nowrap;
     }
 }
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    header,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+
+    main.container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+}

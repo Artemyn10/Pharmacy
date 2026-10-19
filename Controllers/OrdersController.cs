@@ -1,10 +1,12 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pharmacy.Data;
 using Pharmacy.Models;
 using Pharmacy.Models.ViewModels;
+using Pharmacy.Services;
+using System.Security.Claims;
+using System.Text;
 
 namespace Pharmacy.Controllers;
 
@@ -377,5 +379,55 @@ public class OrdersController : Controller
 
         if (model.Items.Count == 0)
             model.Items.Add(new CustomerOrderLineInputViewModel());
+    }
+    [HttpGet]
+    public async Task<IActionResult> ReceiptText(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var query = _context.CustomerOrders
+            .AsNoTracking()
+            .Where(order => order.Id == id.Value);
+
+        if (User.IsInRole(RoleNames.Client))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Forbid();
+
+            query = query.Where(order => order.UserId == userId);
+        }
+
+        var order = await query
+            .Select(o => new CustomerOrderDetailsViewModel
+            {
+                Id = o.Id,
+                OrderDate = o.OrderDate,
+                CustomerName = o.User!.FullName,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                Items = o.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new CustomerOrderDetailsItemViewModel
+                    {
+                        MedicineName = item.MedicineName,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.TotalPrice
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (order == null)
+            return NotFound();
+
+        var receipt = ReceiptTextBuilder.ForCustomerOrder(order);
+        var bytes = Encoding.UTF8.GetPreamble()
+            .Concat(Encoding.UTF8.GetBytes(receipt))
+            .ToArray();
+
+        return File(bytes, "text/plain; charset=utf-8", $"chek-zakaza-{order.Id}.txt");
     }
 }

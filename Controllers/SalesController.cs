@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pharmacy.Data;
 using Pharmacy.Models;
+using System.Text;
+using Pharmacy.Services;
 using Pharmacy.Models.ViewModels;
 
 namespace Pharmacy.Controllers;
@@ -160,8 +162,8 @@ public class SalesController : Controller
             return View(model);
         }
 
-        TempData["Success"] = $"Продажа оформлена. Итого: {totalAmount:N2} руб.";
-        return RedirectToAction(nameof(Create));
+        TempData["Success"] = $"Заказ №{sale.Id} подтверждён. Итого: {totalAmount:N2} руб.";
+        return RedirectToAction(nameof(Details), new { id = sale.Id });
     }
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -261,5 +263,139 @@ public class SalesController : Controller
 
         if (model.Items.Count == 0)
             model.Items.Add(new SaleLineInputViewModel());
+    }
+    [HttpGet]
+    public async Task<IActionResult> ReceiptText(int? id)
+    {
+        if (id == null)
+            return NotFound();
+
+        var query = _context.Sales
+            .AsNoTracking()
+            .Where(sale => sale.Id == id.Value);
+
+        if (!User.IsInRole(RoleNames.Administrator))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Forbid();
+
+            query = query.Where(sale => sale.UserId == userId);
+        }
+
+        var sale = await query
+            .Select(s => new SaleDetailsViewModel
+            {
+                Id = s.Id,
+                SaleDate = s.SaleDate,
+                UserFullName = s.User!.FullName,
+                UserName = s.User.UserName,
+                TotalAmount = s.TotalAmount,
+                Status = s.Status,
+                Items = s.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new SaleDetailsItemViewModel
+                    {
+                        MedicineName = item.Medicine!.Name,
+                        Quantity = item.Quantity,
+                        Price = item.Price,
+                        TotalPrice = item.TotalPrice
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (sale == null)
+            return NotFound();
+
+        var receipt = ReceiptTextBuilder.ForSale(sale);
+        var bytes = Encoding.UTF8.GetPreamble()
+            .Concat(Encoding.UTF8.GetBytes(receipt))
+            .ToArray();
+
+        return File(bytes, "text/plain; charset=utf-8", $"chek-prodazhi-{sale.Id}.txt");
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Cancel(int id)
+    {
+        var query = _context.Sales
+            .AsNoTracking()
+            .Where(sale => sale.Id == id);
+
+        // Администратор может отменять любую продажу,
+        // фармацевт — только оформленную им.
+        if (!User.IsInRole(RoleNames.Administrator))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Forbid();
+
+            query = query.Where(sale => sale.UserId == userId);
+        }
+
+        var sale = await query
+            .Select(item => new
+            {
+                item.Status,
+                Items = item.Items
+                    .Select(saleItem => new
+                    {
+                        saleItem.MedicineId,
+                        saleItem.Quantity
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (sale == null)
+            return NotFound();
+
+        if (sale.Status != SaleStatuses.Completed)
+        {
+            TempData["Error"] = "Эта продажа уже отменена или недоступна для отмены.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        // Условное обновление не позволит отменить продажу дважды
+        // при одновременных запросах.
+        var updatedRows = await _context.Sales
+            .Where(item => item.Id == id && item.Status == SaleStatuses.Completed)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(item => item.Status, SaleStatuses.Cancelled));
+
+        if (updatedRows != 1)
+        {
+            await transaction.RollbackAsync();
+            TempData["Error"] = "Продажа уже изменена. Обновите страницу.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        foreach (var item in sale.Items)
+        {
+            var restoredRows = await _context.Medicines
+                .Where(medicine =>
+                    medicine.Id == item.MedicineId &&
+                    medicine.Quantity <= int.MaxValue - item.Quantity)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(
+                        medicine => medicine.Quantity,
+                        medicine => medicine.Quantity + item.Quantity));
+
+            if (restoredRows != 1)
+            {
+                await transaction.RollbackAsync();
+                TempData["Error"] =
+                    "Не удалось вернуть товар на склад. Продажа не была отменена.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+        }
+
+        await transaction.CommitAsync();
+
+        TempData["Success"] = "Заказ отменён, товар возвращён на склад.";
+        return RedirectToAction(nameof(Details), new { id });
     }
 }

@@ -5,9 +5,18 @@
     ViewData["Title"] = $"Заказ #{Model.Id}";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Заказ #@Model.Id</h1>
-    <a asp-action="Index" class="btn btn-outline-secondary">Назад к заказам</a>
+<div class="d-flex flex-wrap gap-2 no-print">
+    <a asp-action="ReceiptText"
+       asp-route-id="@Model.Id"
+       class="btn btn-outline-success">
+        Скачать чек .txt
+    </a>
+    <button type="button" class="btn btn-success" onclick="window.print()">
+        Печать
+    </button>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Назад к заказам
+    </a>
 </div>
 
 <div class="card shadow-sm mb-4">
